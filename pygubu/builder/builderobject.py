@@ -105,7 +105,7 @@ class BuilderObject(object):
                 self._set_property(target, pname, value)
 
     def _set_property(self, target_widget, pname, value):
-        if pname not in self.__class__.properties:
+        if pname not in self.__class__.properties and pname != 'style':
             msg = "Attempt to set an unknown property '{0}' on class '{1}'"
             msg = msg.format(pname, repr(self.class_))
             logger.warning(msg)
@@ -126,9 +126,12 @@ class BuilderObject(object):
             try:
                 target_widget[pname] = propvalue
             except tk.TclError as e:
-                msg = "Failed to set property '{0}' on class '{1}'. TclError: {2}"
-                msg = msg.format(pname, repr(self.class_), str(e))
-                logger.error(msg)
+                if pname == 'style':
+                    setattr(target_widget, pname, propvalue)
+                else:
+                    msg = "Failed to set property '{0}' on class '{1}'. TclError: {2}"
+                    msg = msg.format(pname, repr(self.class_), str(e))
+                    logger.error(msg)
 
     def layout(self, target=None):
         if not self.layout_required:
